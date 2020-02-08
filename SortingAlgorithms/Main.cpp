@@ -4,6 +4,7 @@
 #include "SelectionSort.h"
 #include "MergeSort.h"
 #include "QuickSort.h"
+#include "BubbleSort.h"
 #include <vector>
 #include <memory>
 #include <random>
@@ -40,7 +41,7 @@ public:
 			std::uniform_int_distribution<> numberDistribution(5, 750);
 			m_NumberArray.push_back(numberDistribution(engine));
 		}
-		m_Sort = std::make_unique<QuickSort>();
+		m_Sort = std::make_unique<MergeSort>();
 		std::vector<int> copy(m_NumberArray);
 		m_AnimationVector = m_Sort->SortNumbers(copy);
 		m_AnimationIterator = m_AnimationVector.begin();
