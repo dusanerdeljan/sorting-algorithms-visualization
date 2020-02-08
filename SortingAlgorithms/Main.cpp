@@ -3,13 +3,15 @@
 #include "Sort.h"
 #include "SelectionSort.h"
 #include "MergeSort.h"
+#include "QuickSort.h"
 #include <vector>
 #include <memory>
 #include <random>
 
-#define NUM_ELEMENTS 100
-#define BAR_WIDTH 10
+#define NUM_ELEMENTS 200
+#define BAR_WIDTH 4
 #define BAR_PADDING 2
+#define ANIMATIONS_PER_FRAME 10
 
 class SortingAlgorithms : public olc::PixelGameEngine
 {
@@ -18,6 +20,10 @@ private:
 	std::unique_ptr<Sort> m_Sort;
 	std::vector<Animation>::iterator m_AnimationIterator;
 	std::vector<Animation> m_AnimationVector;
+	bool m_DrewSorted = false;
+	bool m_InitialDraw = false;
+	int m_First = -1;
+	int m_Second = -1;
 public:
 	SortingAlgorithms()
 	{
@@ -34,21 +40,29 @@ public:
 			std::uniform_int_distribution<> numberDistribution(5, 750);
 			m_NumberArray.push_back(numberDistribution(engine));
 		}
-		m_Sort = std::make_unique<MergeSort>();
+		m_Sort = std::make_unique<QuickSort>();
 		std::vector<int> copy(m_NumberArray);
 		m_AnimationVector = m_Sort->SortNumbers(copy);
 		m_AnimationIterator = m_AnimationVector.begin();
 		return true;
 	}
-	bool OnUserUpdate(float fElapsedTime) override
+	bool AnimationFrame()
 	{
-		Clear(olc::BLACK);
 		if (m_AnimationIterator == m_AnimationVector.end())
 		{
+			if (m_DrewSorted)
+				return true;
 			DrawNumbers(olc::GREEN);
+			m_DrewSorted = true;
 			return true;
-		} 
-		DrawNumbers();
+		}
+		if (!m_InitialDraw)
+		{
+			DrawNumbers();
+			m_InitialDraw = true;
+		}
+		if (m_First != -1 && m_Second != -1)
+			RedrawAffectedBars();
 		if (m_AnimationIterator->type == AnimationType::COMPARE)
 		{
 			DrawBar(m_AnimationIterator->firstIndex, olc::RED);
@@ -56,11 +70,22 @@ public:
 		}
 		else
 		{
-			std::swap(m_NumberArray[m_AnimationIterator->firstIndex], m_NumberArray[m_AnimationIterator->secondIndex]);
+			SwapBars(m_AnimationIterator->firstIndex, m_AnimationIterator->secondIndex);
 			DrawBar(m_AnimationIterator->firstIndex, olc::GREEN);
 			DrawBar(m_AnimationIterator->secondIndex, olc::GREEN);
 		}
+		m_First = m_AnimationIterator->firstIndex;
+		m_Second = m_AnimationIterator->secondIndex;
 		++m_AnimationIterator;
+		return false;
+	}
+	bool OnUserUpdate(float fElapsedTime) override
+	{
+		for (size_t i = 0; i < ANIMATIONS_PER_FRAME; i++)
+		{
+			if (AnimationFrame())
+				return true;
+		}
 		return true;
 	}
 private:
@@ -80,6 +105,19 @@ private:
 	{
 		int x = GetBarPosition(index);
 		FillRect(x, 0, BAR_WIDTH, m_NumberArray[index], color);
+	}
+	void SwapBars(int first, int second)
+	{
+		DrawBar(first, olc::BLACK);
+		DrawBar(second, olc::BLACK);
+		std::swap(m_NumberArray[first], m_NumberArray[second]);
+		DrawBar(first);
+		DrawBar(second);
+	}
+	void RedrawAffectedBars()
+	{
+		DrawBar(m_First);
+		DrawBar(m_Second);
 	}
 };
 int main()
