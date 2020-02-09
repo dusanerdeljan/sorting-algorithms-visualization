@@ -6,6 +6,7 @@
 #include "QuickSort.h"
 #include "BubbleSort.h"
 #include "InsertionSort.h"
+#include "HeapSort.h"
 #include <vector>
 #include <memory>
 #include <random>
@@ -13,7 +14,7 @@
 #define NUM_ELEMENTS 200
 #define BAR_WIDTH 4
 #define BAR_PADDING 2
-#define ANIMATIONS_PER_FRAME 10
+#define ANIMATIONS_PER_FRAME 1
 
 class SortingAlgorithms : public olc::PixelGameEngine
 {
@@ -42,7 +43,7 @@ public:
 			std::uniform_int_distribution<> numberDistribution(5, 750);
 			m_NumberArray.push_back(numberDistribution(engine));
 		}
-		m_Sort = std::make_unique<SelectionSort>();
+		m_Sort = std::make_unique<HeapSort>();
 		std::vector<int> copy(m_NumberArray);
 		m_AnimationVector = m_Sort->SortNumbers(copy);
 		m_AnimationIterator = m_AnimationVector.begin();
