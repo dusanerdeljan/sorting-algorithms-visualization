@@ -11,6 +11,8 @@ Currently supported algorithms:
  * Quick sort
  * Heap sort
 
+<img width="100%" src="Resources/Screenshot.png">
+
 ## License
 
 This program is free.</br>
