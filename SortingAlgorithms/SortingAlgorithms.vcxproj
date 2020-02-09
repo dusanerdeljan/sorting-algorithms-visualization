@@ -119,6 +119,7 @@
     <ClInclude Include="SelectionSort.h" />
     <ClInclude Include="Sort.h" />
     <ClInclude Include="SortingAlgorithmFactory.h" />
+    <ClInclude Include="UIControls.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BubbleSort.cpp" />

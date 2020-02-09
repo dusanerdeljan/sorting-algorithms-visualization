@@ -1,72 +1,10 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 #include "SortingAlgorithmFactory.h"
+#include "UIControls.h"
 #include <vector>
 #include <memory>
 #include <random>
-#include <iostream>
-
-#define LOG(x) std::cout << x << std::endl;
-
-#define NUM_ELEMENTS 200
-#define BAR_WIDTH 4
-#define BAR_PADDING 2
-
-struct Button
-{
-	enum class State {UNCHECKED = 0, CHECKED};
-
-	std::string text;
-	uint32_t width;
-	uint32_t height;
-	uint32_t x;
-	uint32_t y;
-	State state;
-	SortingAlgorithmFactory::Algorithm algorithm;
-	Button(uint32_t x, uint32_t y, uint32_t w, uint32_t h, std::string text, 
-		SortingAlgorithmFactory::Algorithm algorithm = SortingAlgorithmFactory::Algorithm::MERGE_SORT, 
-		Button::State state = Button::State::UNCHECKED)
-		: text(text), width(w), height(h), x(x), y(y), state(state), algorithm(algorithm) { }
-	bool PointInsideButton(uint32_t x, uint32_t y) const
-	{
-		return (x >= this->x && x <= this->x + width && y >= this->y && y <= this->y + height);
-	}
-};
-
-struct Slider
-{
-	enum class State {NOT_SELECTED, SELECTED};
-
-	uint32_t sliderX;
-	uint32_t sliderY;
-	uint32_t sliderRadius;
-	std::string text;
-	uint32_t width;
-	uint32_t height;
-	uint32_t x;
-	uint32_t y;
-	int value;
-	int minValue;
-	int maxValue;
-	State state;
-	Slider(uint32_t x, uint32_t y, uint32_t w, uint32_t h, std::string text, int minValue, int maxValue, int value, uint32_t sliderRadius)
-		: text(text), width(w), height(h), x(x), y(y), value(value), minValue(minValue), maxValue(maxValue), sliderRadius(sliderRadius), state(Slider::State::NOT_SELECTED)
-	{
-		sliderY = y + height/2;
-		sliderX = text.length() * 8 + 16 + (value - minValue) * 16 + 16;
-	}
-	bool PointInsideSlider(uint32_t x, uint32_t y) const
-	{
-		return (x >= this->x && x <= this->x + width && y >= this->y && y <= this->y + height);
-	}
-	void MoveSlider(uint32_t mouseX)
-	{
-		uint32_t beginX = text.length() * 8 + 16 + 16;
-		uint32_t endX = text.length() * 8 + (maxValue - minValue) * 16 + 16 + 16;
-		sliderX = std::min(std::max(beginX, mouseX), endX);
-		value = (int)round((sliderX - beginX) / 16.0 + minValue);
-	}
-};
 
 enum class ApplicationState {ARRAY_GENERATION, SORTING_ANIMATION, ARRAY_SORTED};
 
@@ -86,12 +24,16 @@ private:
 	Button m_HeapSortButton;
 	Button m_QuickSortButton;
 	Slider m_AnimationSpeedSlider;
+	Slider m_NumberCountSlider;
 	Button* m_SelectedSortButton;
 	std::vector<Button*> m_Buttons;
 	int m_First = -1;
 	int m_Second = -1;
 	bool m_ShouldDrawArray = true;
 	uint32_t m_AnimationsSpeed = 1;
+	uint32_t m_NumberCount = 200;
+	uint32_t m_BarWidth = 2;
+	uint32_t m_BarPadding = 1;
 	SortingAlgorithmFactory::Algorithm m_SortingAlgorithm = SortingAlgorithmFactory::Algorithm::MERGE_SORT;
 	ApplicationState m_State = ApplicationState::ARRAY_GENERATION;
 public:
@@ -104,7 +46,8 @@ public:
 		m_MergeSortButton(860, 10, 160, 20, "Merge sort", SortingAlgorithmFactory::Algorithm::MERGE_SORT, Button::State::CHECKED),
 		m_HeapSortButton(1030, 10, 160, 20, "Heap sort", SortingAlgorithmFactory::Algorithm::HEAP_SORT),
 		m_QuickSortButton(1200, 10, 160, 20, "Quick sort", SortingAlgorithmFactory::Algorithm::QUICK_SORT),
-		m_AnimationSpeedSlider(10, 40, 600, 20, "Animations per frame", 1, 20, 1, 8)
+		m_AnimationSpeedSlider(10, 40, 520, 20, "Animations per frame", 1, 20, 1, 8),
+		m_NumberCountSlider(560, 40, 720, 20, "Numbers", 40, 400, 200, 8, 10)
 	{
 		m_Buttons.push_back(&m_NewArrayButton);
 		m_Buttons.push_back(&m_SortButton);
@@ -154,7 +97,11 @@ public:
 		m_Second = m_AnimationIterator->secondIndex;
 		++m_AnimationIterator;
 		if (m_AnimationIterator == m_AnimationVector.end())
+		{
 			m_State = ApplicationState::ARRAY_SORTED;
+			m_First = -1;
+			m_Second = -1;
+		}
 		return false;
 	}
 	bool OnUserUpdate(float fElapsedTime) override
@@ -192,6 +139,8 @@ private:
 			}
 			if (m_AnimationSpeedSlider.PointInsideSlider(GetMouseX(), GetMouseY()))
 				m_AnimationSpeedSlider.state = Slider::State::SELECTED;
+			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State == ApplicationState::ARRAY_GENERATION)
+				m_NumberCountSlider.state = Slider::State::SELECTED;
 		}
 		if (GetMouse(0).bHeld)
 		{
@@ -200,12 +149,26 @@ private:
 				m_AnimationSpeedSlider.MoveSlider(GetMouseX());
 				m_AnimationsSpeed = m_AnimationSpeedSlider.value;
 			}
+			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State == ApplicationState::ARRAY_GENERATION)
+			{
+				m_NumberCountSlider.MoveSlider(GetMouseX());
+				NumberCountSliderValueChanged();
+			}
 		}
 		if (GetMouse(0).bReleased)
 		{
 			if (m_AnimationSpeedSlider.state == Slider::State::SELECTED)
 				m_AnimationSpeedSlider.state = Slider::State::NOT_SELECTED;
+			if (m_NumberCountSlider.state == Slider::State::SELECTED)
+				m_NumberCountSlider.state = Slider::State::NOT_SELECTED;
 		}
+	}
+	void NumberCountSliderValueChanged()
+	{
+		if (m_NumberCount == m_NumberCountSlider.value)
+			return;
+		m_NumberCount = m_NumberCountSlider.value;
+		GenerateArrayButtonAction();
 	}
 	void GenerateArrayButtonAction()
 	{
@@ -231,7 +194,9 @@ private:
 	void GenerateArray()
 	{
 		m_NumberArray.clear();
-		for (size_t i = 0; i < NUM_ELEMENTS; i++)
+		int screenOffset = 20;
+		m_BarWidth = (uint32_t)floor((ScreenWidth() - 2 * screenOffset - (m_NumberCount - 1)*m_BarPadding) / m_NumberCount);
+		for (size_t i = 0; i < m_NumberCount; i++)
 		{
 			std::random_device randomDevice;
 			std::mt19937 engine(randomDevice());
@@ -245,14 +210,15 @@ private:
 		for (const Button* btn : m_Buttons)
 			DrawButton(*btn);
 		DrawSlider(m_AnimationSpeedSlider);
+		DrawSlider(m_NumberCountSlider);
 	}
 	void DrawSlider(const Slider& slider)
 	{
 		FillRect(slider.x, slider.y, slider.width, slider.height, olc::BLACK);
 		DrawString(slider.x, slider.y + slider.height / 2 - 4, slider.text, olc::WHITE);
-		DrawLine(slider.x + slider.text.length() * 8 + 16, slider.y + slider.height / 2, slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue), slider.y + slider.height / 2);
+		DrawLine(slider.x + slider.text.length() * 8 + 16, slider.y + slider.height / 2, slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue) / slider.notchValue, slider.y + slider.height / 2);
 		FillCircle(slider.sliderX, slider.sliderY, slider.sliderRadius, olc::BLUE);
-		DrawString(slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue) + 16, slider.y + slider.height / 2 - 4, std::to_string(slider.value));
+		DrawString(slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue)/slider.notchValue + 16, slider.y + slider.height / 2 - 4, std::to_string(slider.value));
 	}
 	void DrawButton(const Button& button)
 	{
@@ -263,20 +229,20 @@ private:
 	void DrawNumbers(olc::Pixel color = olc::BLUE)
 	{
 		m_ShouldDrawArray = false;
-		for (size_t i = 0; i < NUM_ELEMENTS; i++)
+		for (size_t i = 0; i < m_NumberCount; i++)
 		{
 			DrawBar(i, color);
 		}
 	}
 	int GetBarPosition(int index)
 	{
-		int x = (ScreenWidth() - NUM_ELEMENTS*(BAR_WIDTH + BAR_PADDING)) / 2;
-		return x + (index*(BAR_WIDTH + BAR_PADDING) - BAR_PADDING);
+		int x = (ScreenWidth() - m_NumberCount*(m_BarWidth + m_BarPadding)) / 2;
+		return x + (index*(m_BarWidth + m_BarPadding) - m_BarPadding);
 	}
 	void DrawBar(int index, olc::Pixel color = olc::BLUE)
 	{
 		int x = GetBarPosition(index);
-		FillRect(x, ScreenHeight()-m_NumberArray[index]-1, BAR_WIDTH, m_NumberArray[index], color);
+		FillRect(x, ScreenHeight()-m_NumberArray[index]-1, m_BarWidth, m_NumberArray[index], color);
 	}
 	void SwapBars(int first, int second)
 	{
