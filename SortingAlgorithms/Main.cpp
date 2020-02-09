@@ -11,7 +11,6 @@
 #define NUM_ELEMENTS 200
 #define BAR_WIDTH 4
 #define BAR_PADDING 2
-#define ANIMATIONS_PER_FRAME 10
 
 struct Button
 {
@@ -34,6 +33,41 @@ struct Button
 	}
 };
 
+struct Slider
+{
+	enum class State {NOT_SELECTED, SELECTED};
+
+	uint32_t sliderX;
+	uint32_t sliderY;
+	uint32_t sliderRadius;
+	std::string text;
+	uint32_t width;
+	uint32_t height;
+	uint32_t x;
+	uint32_t y;
+	int value;
+	int minValue;
+	int maxValue;
+	State state;
+	Slider(uint32_t x, uint32_t y, uint32_t w, uint32_t h, std::string text, int minValue, int maxValue, int value, uint32_t sliderRadius)
+		: text(text), width(w), height(h), x(x), y(y), value(value), minValue(minValue), maxValue(maxValue), sliderRadius(sliderRadius), state(Slider::State::NOT_SELECTED)
+	{
+		sliderY = y + height/2;
+		sliderX = text.length() * 8 + 16 + (value - minValue) * 16 + 16;
+	}
+	bool PointInsideSlider(uint32_t x, uint32_t y) const
+	{
+		return (x >= this->x && x <= this->x + width && y >= this->y && y <= this->y + height);
+	}
+	void MoveSlider(uint32_t mouseX)
+	{
+		uint32_t beginX = text.length() * 8 + 16 + 16;
+		uint32_t endX = text.length() * 8 + (maxValue - minValue) * 16 + 16 + 16;
+		sliderX = std::min(std::max(beginX, mouseX), endX);
+		value = (int)round((sliderX - beginX) / 16.0 + minValue);
+	}
+};
+
 enum class ApplicationState {ARRAY_GENERATION, SORTING_ANIMATION, ARRAY_SORTED};
 
 class SortingAlgorithms : public olc::PixelGameEngine
@@ -51,11 +85,13 @@ private:
 	Button m_MergeSortButton;
 	Button m_HeapSortButton;
 	Button m_QuickSortButton;
+	Slider m_AnimationSpeedSlider;
 	Button* m_SelectedSortButton;
 	std::vector<Button*> m_Buttons;
 	int m_First = -1;
 	int m_Second = -1;
 	bool m_ShouldDrawArray = true;
+	uint32_t m_AnimationsSpeed = 1;
 	SortingAlgorithmFactory::Algorithm m_SortingAlgorithm = SortingAlgorithmFactory::Algorithm::MERGE_SORT;
 	ApplicationState m_State = ApplicationState::ARRAY_GENERATION;
 public:
@@ -67,7 +103,8 @@ public:
 		m_InsertionSortButton(690, 10, 160, 20, "Insertion sort", SortingAlgorithmFactory::Algorithm::INSERTION_SORT),
 		m_MergeSortButton(860, 10, 160, 20, "Merge sort", SortingAlgorithmFactory::Algorithm::MERGE_SORT, Button::State::CHECKED),
 		m_HeapSortButton(1030, 10, 160, 20, "Heap sort", SortingAlgorithmFactory::Algorithm::HEAP_SORT),
-		m_QuickSortButton(1200, 10, 160, 20, "Quick sort", SortingAlgorithmFactory::Algorithm::QUICK_SORT)
+		m_QuickSortButton(1200, 10, 160, 20, "Quick sort", SortingAlgorithmFactory::Algorithm::QUICK_SORT),
+		m_AnimationSpeedSlider(10, 40, 600, 20, "Animations per frame", 1, 20, 1, 8)
 	{
 		m_Buttons.push_back(&m_NewArrayButton);
 		m_Buttons.push_back(&m_SortButton);
@@ -124,7 +161,7 @@ public:
 	{
 		DrawUI();
 		HandleUIEvents();
-		for (size_t i = 0; i < ANIMATIONS_PER_FRAME; i++)
+		for (size_t i = 0; i < m_AnimationsSpeed; i++)
 		{
 			if (AnimationFrame())
 				return true;
@@ -153,6 +190,21 @@ private:
 					}
 				}
 			}
+			if (m_AnimationSpeedSlider.PointInsideSlider(GetMouseX(), GetMouseY()))
+				m_AnimationSpeedSlider.state = Slider::State::SELECTED;
+		}
+		if (GetMouse(0).bHeld)
+		{
+			if (m_AnimationSpeedSlider.PointInsideSlider(GetMouseX(), GetMouseY()))
+			{
+				m_AnimationSpeedSlider.MoveSlider(GetMouseX());
+				m_AnimationsSpeed = m_AnimationSpeedSlider.value;
+			}
+		}
+		if (GetMouse(0).bReleased)
+		{
+			if (m_AnimationSpeedSlider.state == Slider::State::SELECTED)
+				m_AnimationSpeedSlider.state = Slider::State::NOT_SELECTED;
 		}
 	}
 	void GenerateArrayButtonAction()
@@ -168,6 +220,7 @@ private:
 	{
 		if (m_State != ApplicationState::ARRAY_GENERATION)
 			return;
+		m_AnimationsSpeed = m_AnimationSpeedSlider.value;
 		m_Sort = SortingAlgorithmFactory::GetSortingAlgorithm(m_SortingAlgorithm);
 		m_State = ApplicationState::SORTING_ANIMATION;
 		m_ShouldDrawArray = true;
@@ -191,6 +244,15 @@ private:
 	{
 		for (const Button* btn : m_Buttons)
 			DrawButton(*btn);
+		DrawSlider(m_AnimationSpeedSlider);
+	}
+	void DrawSlider(const Slider& slider)
+	{
+		FillRect(slider.x, slider.y, slider.width, slider.height, olc::BLACK);
+		DrawString(slider.x, slider.y + slider.height / 2 - 4, slider.text, olc::WHITE);
+		DrawLine(slider.x + slider.text.length() * 8 + 16, slider.y + slider.height / 2, slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue), slider.y + slider.height / 2);
+		FillCircle(slider.sliderX, slider.sliderY, slider.sliderRadius, olc::BLUE);
+		DrawString(slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue) + 16, slider.y + slider.height / 2 - 4, std::to_string(slider.value));
 	}
 	void DrawButton(const Button& button)
 	{
