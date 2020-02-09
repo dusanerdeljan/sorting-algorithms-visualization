@@ -39,6 +39,9 @@
     <ClInclude Include="HeapSort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SortingAlgorithmFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HeapSort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SortingAlgorithmFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,12 +1,6 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
-#include "Sort.h"
-#include "SelectionSort.h"
-#include "MergeSort.h"
-#include "QuickSort.h"
-#include "BubbleSort.h"
-#include "InsertionSort.h"
-#include "HeapSort.h"
+#include "SortingAlgorithmFactory.h"
 #include <vector>
 #include <memory>
 #include <random>
@@ -52,6 +46,7 @@ private:
 	int m_First = -1;
 	int m_Second = -1;
 	bool m_ShouldDrawArray = true;
+	SortingAlgorithmFactory::Algorithm m_SortingAlgorithm = SortingAlgorithmFactory::Algorithm::HEAP_SORT;
 	ApplicationState m_State = ApplicationState::ARRAY_GENERATION;
 public:
 	SortingAlgorithms()
@@ -66,7 +61,6 @@ public:
 	bool OnUserCreate() override
 	{
 		GenerateArray();
-		m_Sort = std::make_unique<MergeSort>();
 		return true;
 	}
 	bool AnimationFrame()
@@ -136,6 +130,7 @@ private:
 					{
 						if (m_State != ApplicationState::ARRAY_GENERATION)
 							return;
+						m_Sort = SortingAlgorithmFactory::GetSortingAlgorithm(m_SortingAlgorithm);
 						m_State = ApplicationState::SORTING_ANIMATION;
 						m_ShouldDrawArray = true;
 						std::vector<int> copy(m_NumberArray);
