@@ -38,6 +38,8 @@ std::unique_ptr<Sort> SortingAlgorithmFactory::GetSortingAlgorithm(SortingAlgori
 		return std::make_unique<HeapSort>();
 	case SortingAlgorithmFactory::Algorithm::GNOME_SORT:
 		return std::make_unique<GnomeSort>();
+	case SortingAlgorithmFactory::Algorithm::COCKTAIL_SORT:
+		return std::make_unique<CocktailSort>();
 	default:
 		return std::make_unique<MergeSort>();
 	}

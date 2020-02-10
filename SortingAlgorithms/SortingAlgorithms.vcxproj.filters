@@ -48,6 +48,9 @@
     <ClInclude Include="GnomeSort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CocktailSort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -78,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GnomeSort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CocktailSort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
