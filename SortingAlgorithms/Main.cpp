@@ -43,6 +43,7 @@ private:
 	Button m_MergeSortButton;
 	Button m_HeapSortButton;
 	Button m_QuickSortButton;
+	Button m_GnomeSortButton;
 	Slider m_AnimationSpeedSlider;
 	Slider m_NumberCountSlider;
 	Button* m_SelectedSortButton;
@@ -66,8 +67,9 @@ public:
 		m_MergeSortButton(860, 10, 160, 20, "Merge sort", SortingAlgorithmFactory::Algorithm::MERGE_SORT, Button::State::CHECKED),
 		m_HeapSortButton(1030, 10, 160, 20, "Heap sort", SortingAlgorithmFactory::Algorithm::HEAP_SORT),
 		m_QuickSortButton(1200, 10, 160, 20, "Quick sort", SortingAlgorithmFactory::Algorithm::QUICK_SORT),
-		m_AnimationSpeedSlider(10, 40, 520, 20, "Animations per frame", 1, 20, 1, 8),
-		m_NumberCountSlider(560, 40, 720, 20, "Numbers", 40, 400, 200, 8, 10)
+		m_GnomeSortButton(350, 40, 160, 20, "Gnome sort", SortingAlgorithmFactory::Algorithm::GNOME_SORT),
+		m_AnimationSpeedSlider(10, 70, 520, 20, "Animations per frame", 1, 20, 1, 8),
+		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10)
 	{
 		m_Buttons.push_back(&m_NewArrayButton);
 		m_Buttons.push_back(&m_SortButton);
@@ -77,6 +79,7 @@ public:
 		m_Buttons.push_back(&m_MergeSortButton);
 		m_Buttons.push_back(&m_HeapSortButton);
 		m_Buttons.push_back(&m_QuickSortButton);
+		m_Buttons.push_back(&m_GnomeSortButton);
 		m_SelectedSortButton = &m_MergeSortButton;
 		sAppName = "Sorting algorithms visualization";
 	}
@@ -159,7 +162,7 @@ private:
 			}
 			if (m_AnimationSpeedSlider.PointInsideSlider(GetMouseX(), GetMouseY()))
 				m_AnimationSpeedSlider.state = Slider::State::SELECTED;
-			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State == ApplicationState::ARRAY_GENERATION)
+			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State != ApplicationState::SORTING_ANIMATION)
 				m_NumberCountSlider.state = Slider::State::SELECTED;
 		}
 		if (GetMouse(0).bHeld)
@@ -169,7 +172,7 @@ private:
 				m_AnimationSpeedSlider.MoveSlider(GetMouseX());
 				m_AnimationsSpeed = m_AnimationSpeedSlider.value;
 			}
-			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State == ApplicationState::ARRAY_GENERATION)
+			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State != ApplicationState::SORTING_ANIMATION)
 			{
 				m_NumberCountSlider.MoveSlider(GetMouseX());
 				NumberCountSliderValueChanged();

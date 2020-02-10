@@ -36,6 +36,8 @@ std::unique_ptr<Sort> SortingAlgorithmFactory::GetSortingAlgorithm(SortingAlgori
 		return std::make_unique<QuickSort>();
 	case SortingAlgorithmFactory::Algorithm::HEAP_SORT:
 		return std::make_unique<HeapSort>();
+	case SortingAlgorithmFactory::Algorithm::GNOME_SORT:
+		return std::make_unique<GnomeSort>();
 	default:
 		return std::make_unique<MergeSort>();
 	}
