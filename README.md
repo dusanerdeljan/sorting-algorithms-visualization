@@ -10,6 +10,12 @@ Currently supported algorithms:
  * Merge sort
  * Quick sort
  * Heap sort
+ * Gnome sort
+ * Cocktail sort
+ * Pancake sort
+ * Brick sort (Odd-even sort)
+ * Comb sort
+ * Slow sort
 
 <img width="100%" src="Resources/Screenshot.png">
 
