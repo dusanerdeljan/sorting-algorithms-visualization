@@ -46,6 +46,8 @@ std::unique_ptr<Sort> SortingAlgorithmFactory::GetSortingAlgorithm(SortingAlgori
 		return std::make_unique<BrickSort>();
 	case SortingAlgorithmFactory::Algorithm::COMB_SORT:
 		return std::make_unique<CombSort>();
+	case SortingAlgorithmFactory::Algorithm::SLOW_SORT:
+		return std::make_unique<SlowSort>();
 	default:
 		return std::make_unique<MergeSort>();
 	}

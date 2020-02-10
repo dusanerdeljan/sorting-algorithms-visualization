@@ -122,6 +122,7 @@
     <ClInclude Include="PancakeSort.h" />
     <ClInclude Include="QuickSort.h" />
     <ClInclude Include="SelectionSort.h" />
+    <ClInclude Include="SlowSort.h" />
     <ClInclude Include="Sort.h" />
     <ClInclude Include="SortingAlgorithmFactory.h" />
     <ClInclude Include="UIControls.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="PancakeSort.cpp" />
     <ClCompile Include="QuickSort.cpp" />
     <ClCompile Include="SelectionSort.cpp" />
+    <ClCompile Include="SlowSort.cpp" />
     <ClCompile Include="Sort.cpp" />
     <ClCompile Include="SortingAlgorithmFactory.cpp" />
   </ItemGroup>
