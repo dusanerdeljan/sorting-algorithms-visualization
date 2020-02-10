@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BrickSort.h" />
     <ClInclude Include="BubbleSort.h" />
     <ClInclude Include="CocktailSort.h" />
     <ClInclude Include="GnomeSort.h" />
@@ -125,6 +126,7 @@
     <ClInclude Include="UIControls.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BrickSort.cpp" />
     <ClCompile Include="BubbleSort.cpp" />
     <ClCompile Include="CocktailSort.cpp" />
     <ClCompile Include="GnomeSort.cpp" />
