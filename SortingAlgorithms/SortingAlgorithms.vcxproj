@@ -117,6 +117,7 @@
     <ClInclude Include="InsertionSort.h" />
     <ClInclude Include="MergeSort.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
+    <ClInclude Include="PancakeSort.h" />
     <ClInclude Include="QuickSort.h" />
     <ClInclude Include="SelectionSort.h" />
     <ClInclude Include="Sort.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="InsertionSort.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MergeSort.cpp" />
+    <ClCompile Include="PancakeSort.cpp" />
     <ClCompile Include="QuickSort.cpp" />
     <ClCompile Include="SelectionSort.cpp" />
     <ClCompile Include="Sort.cpp" />

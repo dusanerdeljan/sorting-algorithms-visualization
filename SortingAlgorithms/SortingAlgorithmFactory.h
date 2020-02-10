@@ -8,12 +8,13 @@
 #include "HeapSort.h"
 #include "GnomeSort.h"
 #include "CocktailSort.h"
+#include "PancakeSort.h"
 #include <memory>
 
 class SortingAlgorithmFactory
 {
 public:
-	enum class Algorithm {BUBBLE_SORT, SELECTION_SORT, INSERTION_SORT, MERGE_SORT, QUICK_SORT, HEAP_SORT, GNOME_SORT, COCKTAIL_SORT};
+	enum class Algorithm {BUBBLE_SORT, SELECTION_SORT, INSERTION_SORT, MERGE_SORT, QUICK_SORT, HEAP_SORT, GNOME_SORT, COCKTAIL_SORT, PANCAKE_SORT};
 	static std::unique_ptr<Sort> GetSortingAlgorithm(SortingAlgorithmFactory::Algorithm algorithmType);
 };
 

@@ -45,6 +45,7 @@ private:
 	Button m_QuickSortButton;
 	Button m_GnomeSortButton;
 	Button m_CocktailSortButton;
+	Button m_PancakeSortButton;
 	Slider m_AnimationSpeedSlider;
 	Slider m_NumberCountSlider;
 	Button* m_SelectedSortButton;
@@ -70,6 +71,7 @@ public:
 		m_QuickSortButton(1200, 10, 160, 20, "Quick sort", SortingAlgorithmFactory::Algorithm::QUICK_SORT),
 		m_GnomeSortButton(350, 40, 160, 20, "Gnome sort", SortingAlgorithmFactory::Algorithm::GNOME_SORT),
 		m_CocktailSortButton(520, 40, 160, 20, "Cocktail sort", SortingAlgorithmFactory::Algorithm::COCKTAIL_SORT),
+		m_PancakeSortButton(690, 40, 160, 20, "Pancake sort", SortingAlgorithmFactory::Algorithm::PANCAKE_SORT),
 		m_AnimationSpeedSlider(10, 70, 520, 20, "Animations per frame", 1, 20, 1, 8),
 		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10)
 	{
@@ -83,6 +85,7 @@ public:
 		m_Buttons.push_back(&m_QuickSortButton);
 		m_Buttons.push_back(&m_GnomeSortButton);
 		m_Buttons.push_back(&m_CocktailSortButton);
+		m_Buttons.push_back(&m_PancakeSortButton);
 		m_SelectedSortButton = &m_MergeSortButton;
 		sAppName = "Sorting algorithms visualization";
 	}
