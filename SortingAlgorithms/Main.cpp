@@ -47,6 +47,7 @@ private:
 	Button m_CocktailSortButton;
 	Button m_PancakeSortButton;
 	Button m_BrickSortButton;
+	Button m_ComblSortButton;
 	Slider m_AnimationSpeedSlider;
 	Slider m_NumberCountSlider;
 	Button* m_SelectedSortButton;
@@ -74,6 +75,7 @@ public:
 		m_CocktailSortButton(520, 40, 160, 20, "Cocktail sort", SortingAlgorithmFactory::Algorithm::COCKTAIL_SORT),
 		m_PancakeSortButton(690, 40, 160, 20, "Pancake sort", SortingAlgorithmFactory::Algorithm::PANCAKE_SORT),
 		m_BrickSortButton(860, 40, 160, 20, "Brick sort", SortingAlgorithmFactory::Algorithm::BRICK_SORT),
+		m_ComblSortButton(1030, 40, 160, 20, "Comb sort", SortingAlgorithmFactory::Algorithm::COMB_SORT),
 		m_AnimationSpeedSlider(10, 70, 520, 20, "Animations per frame", 1, 20, 1, 8),
 		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10)
 	{
@@ -89,6 +91,7 @@ public:
 		m_Buttons.push_back(&m_CocktailSortButton);
 		m_Buttons.push_back(&m_PancakeSortButton);
 		m_Buttons.push_back(&m_BrickSortButton);
+		m_Buttons.push_back(&m_ComblSortButton);
 		m_SelectedSortButton = &m_MergeSortButton;
 		sAppName = "Sorting algorithms visualization";
 	}
@@ -119,7 +122,7 @@ public:
 			DrawBar(m_AnimationIterator->firstIndex, olc::RED);
 			DrawBar(m_AnimationIterator->secondIndex, olc::RED);
 		}
-		else
+		else if (m_AnimationIterator->type == AnimationType::SWAP)
 		{
 			SwapBars(m_AnimationIterator->firstIndex, m_AnimationIterator->secondIndex);
 			DrawBar(m_AnimationIterator->firstIndex, olc::GREEN);
