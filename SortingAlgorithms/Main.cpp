@@ -57,6 +57,7 @@ private:
 	Button m_SlowSortButton;
 	Slider m_AnimationSpeedSlider;
 	Slider m_NumberCountSlider;
+	Slider m_FrameDelaySlider;
 	Button* m_SelectedSortButton;
 	std::vector<Button*> m_Buttons;
 	int m_First = -1;
@@ -66,6 +67,8 @@ private:
 	uint32_t m_NumberCount = 200;
 	uint32_t m_BarWidth = 2;
 	uint32_t m_BarPadding = 1;
+	uint32_t m_TimeBetweenFrames = 0;
+	float m_DeltaTime = 0.0f;
 	SortingAlgorithmFactory::Algorithm m_SortingAlgorithm = SortingAlgorithmFactory::Algorithm::MERGE_SORT;
 	ApplicationState m_State = ApplicationState::ARRAY_GENERATION;
 public:
@@ -85,7 +88,8 @@ public:
 		m_CombSortButton(1030, 40, 160, 20, "Comb sort", SortingAlgorithmFactory::Algorithm::COMB_SORT),
 		m_SlowSortButton(1200, 40, 160, 20, "Slow sort", SortingAlgorithmFactory::Algorithm::SLOW_SORT),
 		m_AnimationSpeedSlider(10, 70, 520, 20, "Animations per frame", 1, 20, 1, 8),
-		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10)
+		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10),
+		m_FrameDelaySlider(10, 100, 900, 20, "Time between frames (ms)", 0, 2000, 0, 8, 50)
 	{
 		m_Buttons.push_back(&m_NewArrayButton);
 		m_Buttons.push_back(&m_SortButton);
@@ -152,6 +156,12 @@ public:
 	{
 		DrawUI();
 		HandleUIEvents();
+		if (m_DeltaTime < m_TimeBetweenFrames)
+		{
+			m_DeltaTime += (fElapsedTime*1000.0f);
+			return true;
+		}
+		m_DeltaTime = 0.0f;
 		for (size_t i = 0; i < m_AnimationsSpeed; i++)
 		{
 			if (AnimationFrame())
@@ -185,6 +195,8 @@ private:
 				m_AnimationSpeedSlider.state = Slider::State::SELECTED;
 			if (m_NumberCountSlider.PointInsideSlider(GetMouseX(), GetMouseY()) && m_State != ApplicationState::SORTING_ANIMATION)
 				m_NumberCountSlider.state = Slider::State::SELECTED;
+			if (m_FrameDelaySlider.PointInsideSlider(GetMouseX(), GetMouseY()))
+				m_FrameDelaySlider.state = Slider::State::SELECTED;
 		}
 		if (GetMouse(0).bHeld)
 		{
@@ -198,6 +210,11 @@ private:
 				m_NumberCountSlider.MoveSlider(GetMouseX());
 				NumberCountSliderValueChanged();
 			}
+			if (m_FrameDelaySlider.PointInsideSlider(GetMouseX(), GetMouseY()))
+			{
+				m_FrameDelaySlider.MoveSlider(GetMouseX());
+				m_TimeBetweenFrames = m_FrameDelaySlider.value;
+			}
 		}
 		if (GetMouse(0).bReleased)
 		{
@@ -205,6 +222,8 @@ private:
 				m_AnimationSpeedSlider.state = Slider::State::NOT_SELECTED;
 			if (m_NumberCountSlider.state == Slider::State::SELECTED)
 				m_NumberCountSlider.state = Slider::State::NOT_SELECTED;
+			if (m_FrameDelaySlider.state == Slider::State::SELECTED)
+				m_FrameDelaySlider.state = Slider::State::NOT_SELECTED;
 		}
 	}
 	void NumberCountSliderValueChanged()
@@ -228,6 +247,7 @@ private:
 		if (m_State != ApplicationState::ARRAY_GENERATION)
 			return;
 		m_AnimationsSpeed = m_AnimationSpeedSlider.value;
+		m_TimeBetweenFrames = m_FrameDelaySlider.value;
 		m_Sort = SortingAlgorithmFactory::GetSortingAlgorithm(m_SortingAlgorithm);
 		m_State = ApplicationState::SORTING_ANIMATION;
 		m_ShouldDrawArray = true;
@@ -257,6 +277,7 @@ private:
 			DrawButton(*btn);
 		DrawSlider(m_AnimationSpeedSlider);
 		DrawSlider(m_NumberCountSlider);
+		DrawSlider(m_FrameDelaySlider);
 	}
 	void DrawSlider(const Slider& slider)
 	{
