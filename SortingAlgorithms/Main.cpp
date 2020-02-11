@@ -248,6 +248,7 @@ private:
 			return;
 		m_AnimationsSpeed = m_AnimationSpeedSlider.value;
 		m_TimeBetweenFrames = m_FrameDelaySlider.value;
+		m_DeltaTime = m_TimeBetweenFrames + 0.1f;
 		m_Sort = SortingAlgorithmFactory::GetSortingAlgorithm(m_SortingAlgorithm);
 		m_State = ApplicationState::SORTING_ANIMATION;
 		m_ShouldDrawArray = true;
