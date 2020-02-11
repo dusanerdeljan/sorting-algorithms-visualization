@@ -88,7 +88,7 @@ public:
 		m_CombSortButton(1030, 40, 160, 20, "Comb sort", SortingAlgorithmFactory::Algorithm::COMB_SORT),
 		m_SlowSortButton(1200, 40, 160, 20, "Slow sort", SortingAlgorithmFactory::Algorithm::SLOW_SORT),
 		m_AnimationSpeedSlider(10, 70, 520, 20, "Animations per frame", 1, 20, 1, 8),
-		m_NumberCountSlider(560, 70, 720, 20, "Numbers", 40, 400, 200, 8, 10),
+		m_NumberCountSlider(560, 70, 740, 20, "Array size", 10, 400, 200, 8, 10),
 		m_FrameDelaySlider(10, 100, 900, 20, "Time between frames (ms)", 0, 2000, 0, 8, 50)
 	{
 		m_Buttons.push_back(&m_NewArrayButton);
@@ -156,7 +156,7 @@ public:
 	{
 		DrawUI();
 		HandleUIEvents();
-		if (m_DeltaTime < m_TimeBetweenFrames)
+		if (m_DeltaTime < m_TimeBetweenFrames && m_State == ApplicationState::SORTING_ANIMATION)
 		{
 			m_DeltaTime += (fElapsedTime*1000.0f);
 			return true;
@@ -278,6 +278,7 @@ private:
 		DrawSlider(m_AnimationSpeedSlider);
 		DrawSlider(m_NumberCountSlider);
 		DrawSlider(m_FrameDelaySlider);
+		DrawLegend();
 	}
 	void DrawSlider(const Slider& slider)
 	{
@@ -292,6 +293,15 @@ private:
 		FillRect(button.x, button.y, button.width, button.height, olc::GREY);
 		DrawRect(button.x, button.y, button.width, button.height, button.state == Button::State::CHECKED ? GREEN : DARK_BLUE );
 		DrawString(button.x + (button.width - button.text.length()*8)/2, button.y + button.height / 2 - 4, button.text, button.state == Button::State::CHECKED ? GREEN : DARK_BLUE);
+	}
+	void DrawLegend()
+	{
+		FillRect(920, 100, 20, 20, olc::RED);
+		DrawString(950, 108, "Comparison");
+		FillRect(1040, 100, 20, 20, GREEN);
+		DrawString(1070, 108, "Swap");
+		FillRect(1112, 100, 20, 20, VERY_DARK_BLUE);
+		DrawString(1142, 108, "Sorted");
 	}
 	void DrawNumbers(bool colorSorted = false, olc::Pixel color = BLUE)
 	{
