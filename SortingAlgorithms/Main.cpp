@@ -26,12 +26,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 #include <memory>
 #include <random>
 
+#define GREEN olc::Pixel(0, 204, 0)
+#define BLUE olc::Pixel(51, 153, 255)
+#define DARK_BLUE olc::Pixel(0, 51, 204)
+#define VERY_DARK_BLUE olc::Pixel(51, 51, 153)
+
 enum class ApplicationState {ARRAY_GENERATION, SORTING_ANIMATION, ARRAY_SORTED};
 
 class SortingAlgorithms : public olc::PixelGameEngine
 {
 private:
 	std::vector<int> m_NumberArray;
+	std::vector<int> m_SortedNumberArray;
 	std::unique_ptr<Sort> m_Sort;
 	std::vector<Animation>::iterator m_AnimationIterator;
 	std::vector<Animation> m_AnimationVector;
@@ -115,21 +121,21 @@ public:
 		if (m_State == ApplicationState::ARRAY_SORTED)
 		{
 			if (m_ShouldDrawArray)
-				DrawNumbers(olc::DARK_GREEN);
+				DrawNumbers(false, GREEN);
 			return true;
 		}
 		if (m_First != -1 && m_Second != -1)
 			RedrawAffectedBars();
 		if (m_AnimationIterator->type == AnimationType::COMPARE)
 		{
-			DrawBar(m_AnimationIterator->firstIndex, olc::RED);
-			DrawBar(m_AnimationIterator->secondIndex, olc::RED);
+			DrawBar(m_AnimationIterator->firstIndex, false, olc::RED);
+			DrawBar(m_AnimationIterator->secondIndex, false, olc::RED);
 		}
 		else if (m_AnimationIterator->type == AnimationType::SWAP)
 		{
 			SwapBars(m_AnimationIterator->firstIndex, m_AnimationIterator->secondIndex);
-			DrawBar(m_AnimationIterator->firstIndex, olc::GREEN);
-			DrawBar(m_AnimationIterator->secondIndex, olc::GREEN);
+			DrawBar(m_AnimationIterator->firstIndex, false, GREEN);
+			DrawBar(m_AnimationIterator->secondIndex, false, GREEN);
 		}
 		m_First = m_AnimationIterator->firstIndex;
 		m_Second = m_AnimationIterator->secondIndex;
@@ -242,6 +248,8 @@ private:
 			std::uniform_int_distribution<> numberDistribution(5, maxValue);
 			m_NumberArray.push_back(numberDistribution(engine));
 		}
+		m_SortedNumberArray = m_NumberArray;
+		std::sort(m_SortedNumberArray.begin(), m_SortedNumberArray.end());
 	}
 	void DrawUI()
 	{
@@ -255,21 +263,21 @@ private:
 		FillRect(slider.x, slider.y, slider.width, slider.height, olc::BLACK);
 		DrawString(slider.x, slider.y + slider.height / 2 - 4, slider.text, olc::WHITE);
 		DrawLine(slider.x + slider.text.length() * 8 + 16, slider.y + slider.height / 2, slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue) / slider.notchValue, slider.y + slider.height / 2);
-		FillCircle(slider.sliderX, slider.sliderY, slider.sliderRadius, olc::BLUE);
+		FillCircle(slider.sliderX, slider.sliderY, slider.sliderRadius, DARK_BLUE);
 		DrawString(slider.x + slider.text.length() * 8 + 16 + 16 * (slider.maxValue - slider.minValue)/slider.notchValue + 16, slider.y + slider.height / 2 - 4, std::to_string(slider.value));
 	}
 	void DrawButton(const Button& button)
 	{
 		FillRect(button.x, button.y, button.width, button.height, olc::GREY);
-		DrawRect(button.x, button.y, button.width, button.height, button.state == Button::State::CHECKED ? olc::DARK_GREEN : olc::BLUE );
-		DrawString(button.x + (button.width - button.text.length()*8)/2, button.y + button.height / 2 - 4, button.text, button.state == Button::State::CHECKED ? olc::DARK_GREEN : olc::BLUE);
+		DrawRect(button.x, button.y, button.width, button.height, button.state == Button::State::CHECKED ? GREEN : DARK_BLUE );
+		DrawString(button.x + (button.width - button.text.length()*8)/2, button.y + button.height / 2 - 4, button.text, button.state == Button::State::CHECKED ? GREEN : DARK_BLUE);
 	}
-	void DrawNumbers(olc::Pixel color = olc::BLUE)
+	void DrawNumbers(bool colorSorted = false, olc::Pixel color = BLUE)
 	{
 		m_ShouldDrawArray = false;
 		for (size_t i = 0; i < m_NumberCount; i++)
 		{
-			DrawBar(i, color);
+			DrawBar(i, colorSorted, color);
 		}
 	}
 	int GetBarPosition(int index)
@@ -277,15 +285,17 @@ private:
 		int x = (ScreenWidth() - m_NumberCount*(m_BarWidth + m_BarPadding)) / 2;
 		return x + (index*(m_BarWidth + m_BarPadding) - m_BarPadding);
 	}
-	void DrawBar(int index, olc::Pixel color = olc::BLUE)
+	void DrawBar(int index, bool colorSorted = true, olc::Pixel color = BLUE)
 	{
 		int x = GetBarPosition(index);
+		if (colorSorted)
+			color = m_SortedNumberArray[index] == m_NumberArray[index] ? VERY_DARK_BLUE : color;
 		FillRect(x, ScreenHeight()-m_NumberArray[index]-1, m_BarWidth, m_NumberArray[index], color);
 	}
 	void SwapBars(int first, int second)
 	{
-		DrawBar(first, olc::BLACK);
-		DrawBar(second, olc::BLACK);
+		DrawBar(first, false, olc::BLACK);
+		DrawBar(second, false, olc::BLACK);
 		std::swap(m_NumberArray[first], m_NumberArray[second]);
 		DrawBar(first);
 		DrawBar(second);
