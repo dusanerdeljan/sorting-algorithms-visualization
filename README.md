@@ -17,7 +17,7 @@ Currently supported algorithms:
  * Comb sort
  * Slow sort
 
-<img width="100%" src="Resources/Screenshot.png">
+!["MergeSort visualization example"](Resources/MergeSortExample.gif)
 
 ## License
 
